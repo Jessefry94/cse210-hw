@@ -8,9 +8,18 @@ namespace ScriptureMemory
     {
         static void Main(string[] args) 
         {
-            // This is where we Instantiate 
-            // Connecting scripture with the reference and text
-            Scripture scripture = new Scripture("Proverbs 3:5-6", "Trust in the Lord with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.");
+             List<Scripture> scriptureLibrary = new List<Scripture>
+            {
+                new Scripture("Proverbs 3:5-6", "Trust in the Lord with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths."),
+                new Scripture("John 3:5", "Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God."),
+                new Scripture("John 17:3", "And this is life eternal, that they might know thee the only true God, and Jesus Christ, whom thou hast sent."),
+                new Scripture("1 Corinthians 15:20-22", "But now is Christ risen from the dead, and become the firstfruits of them that slept. For since by man came death, by man came also the resurrection of the dead. For as in Adam all die, even so in Christ shall all be made alive.")
+                // Add more scriptures here
+            };
+
+            Random random = new Random();
+            int randomIndex = random.Next(scriptureLibrary.Count);
+            Scripture scripture = scriptureLibrary[randomIndex];
             
             // Combining scriptureformatter and scripture hidder to run a loop
             // Connecting the two objects together
@@ -25,7 +34,7 @@ namespace ScriptureMemory
                 // This will clear the console. Blank slate.
                 Console.Clear();
                 // This will grab my current scripture and display it in the console
-                Console.WriteLine(formatter.GetCurrentScripture());
+                Console.WriteLine(formatter.GetCurrentScripture(hider.AllWordsHidden()));
 
                 // Checking to see if all the words are hiden
                 if (hider.AllWordsHidden())

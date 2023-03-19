@@ -74,5 +74,10 @@ namespace ScriptureMemory
         {
             return _scripture;
         }
+        public List<string> GetOriginalWords()
+        {
+            return _words;
+        }
+
     }
 }

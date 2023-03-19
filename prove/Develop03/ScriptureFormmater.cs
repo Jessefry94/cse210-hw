@@ -15,11 +15,20 @@ namespace ScriptureMemory
         }
 
         // We are using the method get current scripture using hidden words
-        public string GetCurrentScripture()
+        public string GetCurrentScripture(bool revealFirstLetters = false)
         {
             // Getting the hidden words from the list
             List<string> hiddenWords = _hider.GetHiddenWords();
-            // Getting the scripture object
+            if (revealFirstLetters)
+            {
+            for (int i = 0; i < hiddenWords.Count; i++)
+            {
+                if (hiddenWords[i].Length > 0)
+                {
+                    hiddenWords[i] = _hider.GetOriginalWords()[i][0] + hiddenWords[i].Substring(1);
+                }
+            }
+            }
             Scripture scripture = _hider.GetScripture();
 
             // Formatting so we can have the reference visable
