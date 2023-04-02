@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 // Allows us to use namespace for reading and writing to files
 using System.IO;
-
+// Updated ?
 namespace DailyJournal
 {
     class Entry
