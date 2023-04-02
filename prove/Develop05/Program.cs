@@ -1,182 +1,322 @@
-// These are key features for the program. 
-// Importing the System imports namespace and other c# basics
-using System; 
-// Contains generic collection classes like List<T>
-using System.Collections.Generic;
-// Allows us to use namespace for reading and writing to files
+using System;
 using System.IO;
+using GoalTracker;
 
-namespace DailyJournal
+namespace GoalTracker
 {
-    class Entry
-    {
-        // Read only propertys that return the prompt
-        public string Prompt {get;}
-        public string Response {get;}
-        public string Date {get;}
-        public string Mood {get;}
-
-        //Constructor to initialize prompt, response and date (Note:Learn more about initializing)
-        public Entry(string prompt, string response, string date, string mood)
-        {
-            Prompt = prompt;
-            Response = response;
-            Date = date;
-            Mood = mood;
-        }
-    
-        // Override ToString method to get formatted string representation of Entry object
-        public override string ToString()
-        {
-            return $"{Date} - {Prompt}: {Response} ({Mood})";
-        }
-    }
-
-    // Constructor to initialize entries
-    class Journal
-    {
-        private List<Entry> _entries;
-
-        public Journal()
-        {
-            _entries = new List<Entry>();
-        }
-
-        // AddEntry method to add new entry to journal with provided prompt, response and today's date
-        public void AddEntry(string prompt, string response, string mood)
-        {
-            // Get todays date
-            string date = DateTime.Today.ToString("d");
-            // create a new Entry object
-            Entry entry = new Entry(prompt, response, date, mood);
-            // Add the Entry object to the list of entries
-            _entries.Add(entry);
-        }
-
-        // DisplayEntries method to iterate through all entries in the journal and display them
-        public void DisplayEntries()
-        {
-            // Iterating through list of entries
-            foreach (Entry entry in _entries)
-            {
-                // Print all Entrys to console
-                Console.WriteLine(entry);
-            }
-        }
-
-        // SaveToFile method to save current journal (entries list) to provided file name
-        public void SaveToFile(string filename)
-        {
-            // Open file writer object
-            using (StreamWriter writer = new StreamWriter(filename))
-            {
-                foreach (Entry entry in _entries)
-                {
-                    writer.WriteLine($"{entry.Prompt}|{entry.Response}|{entry.Date}|{entry.Mood}");
-                }
-            }
-        }
-
-        // LoadFromFile method to load entries from provided file name and replace any entries currently stored in the journal
-        public void LoadFromFile(string filename)
-        {
-            // Clear the enteries list
-            _entries.Clear();
-            // Open the file reader object
-            using (StreamReader reader = new StreamReader(filename))
-            {
-                string line;
-                // Read each line of file until there are none left.
-                while ((line = reader.ReadLine()) != null)
-                {
-                    // Splitting 
-                    string[] fields = line.Split('|');
-                    // Looking for all 3 prompts
-                    if (fields.Length == 4)
-                    {
-                        // Grabbing the prompts from all 4
-                        string prompt = fields[0];
-                        string response = fields[1];
-                        string date = fields[2];
-                        string mood = fields[3];
-                        Entry entry = new Entry(prompt, response, date, mood);
-                        _entries.Add(entry);
-                    }
-                }
-            }
-        }
-    }
-
     class Program
     {
         static void Main(string[] args)
         {
-            Journal journal = new Journal();
+            GoalManager goalManager = new GoalManager();
 
-            string[] prompts = {
-                "What did I learn from class today?",
-                "What was the best part of my day?",
-                "Name three things that I love?",
-                "How am I taking care of myself today?",
-                "If I had one thing I could do over today, what would it be?"
-            };
-            // This names and tracts to see if the user quits
-            bool done = false;
-            // Loop until the user quits.
-            while (!done)
+            while (true)
             {
-                Console.WriteLine("Daily Journal\n");
-                Console.WriteLine("1. Write a new entry");
-                Console.WriteLine("2. Display the journal");
-                Console.WriteLine("3. Save the journal to a file");
-                Console.WriteLine("4. Load the journal from a file");
-                Console.WriteLine("5. Quit\n");
+                Console.WriteLine($"Total Points: {goalManager.TotalPoints}");
+                Console.WriteLine("Select a choice from the menu:");
+                Console.WriteLine("1. Create New Goal");
+                Console.WriteLine("2. List Goals");
+                Console.WriteLine("3. Save Goals");
+                Console.WriteLine("4. Load Goals");
+                Console.WriteLine("5. Record Event");
+                Console.WriteLine("6. Quit");
+                Console.WriteLine("7. Delete Goal");
 
-                Console.Write("Enter your choice (1-5): ");
-                string choice = Console.ReadLine();
-                // This allows us to switch between the users choices of 1-5
+                int choice = int.Parse(Console.ReadLine());
+
                 switch (choice)
                 {
-                    case "1":
-                        string prompt = prompts[new Random().Next(prompts.Length)];
-                        Console.WriteLine($"Prompt: {prompt}");
-                        Console.Write("Response: ");
-                        string response = Console.ReadLine();
-                        Console.Write("Mood: ");
-                        string mood = Console.ReadLine();
-                        // Object.Method(arguments) (This is known as a method call or function call)
-                        journal.AddEntry(prompt, response, mood);
-                        Console.WriteLine("Entry added.\n");
+                    case 1:
+                        CreateNewGoal(goalManager);
                         break;
-
-                    case "2":
-                        Console.WriteLine("Journal entries:\n");
-                        journal.DisplayEntries();
-                        Console.WriteLine();
+                    case 2:
+                        ListGoals(goalManager);
                         break;
-
-                    case "3":
-                        Console.Write("Enter filename to save to: ");
-                        string saveFilename = Console.ReadLine();
-                        journal.SaveToFile(saveFilename);
-                        Console.WriteLine("Journal saved.\n");
+                    case 3:
+                        SaveGoals(goalManager);
                         break;
-
-                    case "4":
-                        Console.Write("Enter filename to load from: ");
-                        string loadFilename = Console.ReadLine();
-                        journal.LoadFromFile(loadFilename);
-                        Console.WriteLine("Journal loaded.\n");
+                    case 4:
+                        LoadGoals(goalManager);
                         break;
-
-                    case "5":
-                        done = true;
+                    case 5:
+                        RecordEvent(goalManager);
                         break;
-                default:
-                    Console.WriteLine("Invalid choice. Try again.\n");
-                    break;
+                    case 6:
+                        // Exit the program
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again.");
+                        break;
+                    case 7:
+                        DeleteGoal(goalManager);
+                        break;
                 }
             }
+        }
+
+        // This method creates a new goal based on user input
+        private static void CreateNewGoal(GoalManager goalManager)
+        {
+            // Ask the user to select the goal type
+            Console.WriteLine("Select goal type (1: Simple, 2: Eternal, 3: Checklist):");
+            // We need to convert ("Parse") This way the number is associated with the variable type
+            int goalType = int.Parse(Console.ReadLine());
+
+            // Ask the user to input goal name
+            Console.WriteLine("Enter goal name:");
+            string name = Console.ReadLine();
+
+            // Ask the user to input goal description
+            Console.WriteLine("Enter goal description:");
+            string description = Console.ReadLine();
+
+            // Ask the user to input points earned per goal/event
+            Console.WriteLine("Enter points earned per event:");
+            int points = int.Parse(Console.ReadLine());
+
+            Goal newGoal;
+
+            // Create the goal based on the selected type
+            switch (goalType)
+            {
+                case 1:
+                    newGoal = new SimpleGoal { Name = name, Description = description, Points = points };
+                    break;
+                case 2:
+                    newGoal = new EternalGoal { Name = name, Description = description, Points = points };
+                    break;
+                case 3:
+                    // Ask the user to input target number of events for ChecklistGoal
+                    Console.WriteLine("Enter target number of events:");
+                    int target = int.Parse(Console.ReadLine());
+
+                    // Prompt the user to input bonus points for ChecklistGoal
+                    Console.WriteLine("Enter bonus points earned after reaching the target:");
+                    int bonusPoints = int.Parse(Console.ReadLine());
+
+                    newGoal = new ChecklistGoal { Name = name, Description = description, Points = points, Target = target, BonusPoints = bonusPoints };
+                    break;
+                default:
+                    Console.WriteLine("Invalid goal type. Please try again.");
+                    return;
+            }
+            // Add the new goal to the GoalManager
+            goalManager.AddGoal(newGoal);
+            Console.WriteLine($"Goal {name} created.");
+        }
+
+        // This method lists all goals in the GoalManager
+        private static void ListGoals(GoalManager goalManager)
+        {
+            // Check if there are any goals
+            if (goalManager.Goals.Count == 0)
+            {
+                Console.WriteLine("No goals created yet.");
+                return;
+            }
+            // Iterate through each goal so we can display the details of each goal
+            for (int i = 0; i < goalManager.Goals.Count; i++)
+            {
+                Goal goal = goalManager.Goals[i];
+                string goalType = goal.GetType().Name;
+
+                // If the goal is a ChecklistGoal, display progress as 'current progress/target'
+                string progressDisplay;
+                if (goal is ChecklistGoal checklistGoal)
+                {
+                    progressDisplay = $"{checklistGoal.Progress}/{checklistGoal.Target}";
+                }
+                else
+                {
+                    progressDisplay = $"{goal.Progress}";
+                }
+
+                // Check if the goal is completed
+                ChecklistGoal checklistGoalForCompletionCheck = goal as ChecklistGoal;
+                bool isGoalCompleted = (goal is SimpleGoal && goal.Progress > 0) || (checklistGoalForCompletionCheck != null && checklistGoalForCompletionCheck.Progress >= checklistGoalForCompletionCheck.Target);
+
+                // This is how I display if a goal is completed or not
+                // This is another way we can write if, else statments (Honestly can be confusing but keeping it here for learning purposes)
+                string completionStatus = isGoalCompleted ? "[X]" : "[ ]";
+
+                // The other way to write this which is a lot more normal to me.
+                // string completionStatus;
+                // if (isGoalCompleted)
+                // {
+                //     completionStatus = "[X]";
+                // }
+                // else
+                // {
+                //     completionStatus = "[ ]";
+                // }
+
+                // Print the goal details
+                Console.WriteLine($"{completionStatus} [{i + 1}] {goalType}: {goal.Name} ({goal.Description}) - Points: {goal.Points}, Progress: {progressDisplay}");
+            }
+        }
+
+        private static void SaveGoals(GoalManager goalManager)
+        {
+            // Defining the file path for the saved goals (Which I made automatic. Was having a few issues earlier so I decided I did this)
+            // filePath and StreamWrite are very important for files and is connected to System.IO (Reminder)
+            string filePath = "goals.txt";
+
+            // Create a StreamWriter to write to the file
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                // Write the total points to the file
+                writer.WriteLine(goalManager.TotalPoints);
+
+                // Write the number of goals to the file
+                writer.WriteLine(goalManager.Goals.Count);
+
+                // Iterate through all the goals
+                foreach (Goal goal in goalManager.Goals)
+                {
+                    // Write the goal type SimpleGoal, EternalGoal, ChecklistGoal to the file
+                    writer.WriteLine(goal.GetType().Name);
+
+                    // Write the goal name, description, points, and progress to the file
+                    writer.WriteLine(goal.Name);
+                    writer.WriteLine(goal.Description);
+                    writer.WriteLine(goal.Points);
+                    writer.WriteLine(goal.Progress);
+
+                    // If the goal is a ChecklistGoal we want to write the target and bonus points to the file
+                    if (goal is ChecklistGoal checklistGoal)
+                    {
+                        writer.WriteLine(checklistGoal.Target);
+                        writer.WriteLine(checklistGoal.BonusPoints);
+                    }
+                }
+            }
+            // Tell the user the goals have been saved to the file
+            Console.WriteLine("Goals saved to file.");
+        }
+
+        private static void LoadGoals(GoalManager goalManager)
+        {
+            // This is the file path for the saved goals
+            string filePath = "goals.txt";
+
+            // Check if the file exists; if not, inform the user and return
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("File not found. Please save goals before attempting to load.");
+                return;
+            }
+
+            // We need to create a StreamReader to read from the file
+            using (StreamReader reader = new StreamReader(filePath))
+            {
+                // Read the total points from the file and then we will assign them to the goal manager
+                goalManager.TotalPoints = int.Parse(reader.ReadLine());
+
+                // Read the number of goals from the file
+                int goalCount = int.Parse(reader.ReadLine());
+
+                // Clear the current list of goals in the goal manager
+                // This is really important to have. If we do not have this then we could end up with duplicates or other issues
+                goalManager.Goals.Clear();
+
+                // Iterate through all the goals in the file
+                for (int i = 0; i < goalCount; i++)
+                {
+                    // We want to read the goal type, name, description, points, and progress from the file
+                    string goalType = reader.ReadLine();
+                    string name = reader.ReadLine();
+                    string description = reader.ReadLine();
+                    int points = int.Parse(reader.ReadLine());
+                    int progress = int.Parse(reader.ReadLine());
+
+                    // We need a variable to hold the loaded goal (Declaring a variable)
+                    Goal loadedGoal;
+
+                    // Create a new goal instance based on the goal type and fill its properties
+                    switch (goalType)
+                    {
+                        case "SimpleGoal":
+                            loadedGoal = new SimpleGoal { Name = name, Description = description, Points = points, Progress = progress };
+                            break;
+                        case "EternalGoal":
+                            loadedGoal = new EternalGoal { Name = name, Description = description, Points = points, Progress = progress };
+                            break;
+                        case "ChecklistGoal":
+                            int target = int.Parse(reader.ReadLine());
+                            int bonusPoints = int.Parse(reader.ReadLine());
+                            loadedGoal = new ChecklistGoal { Name = name, Description = description, Points = points, Progress = progress, Target = target, BonusPoints = bonusPoints };
+                            break;
+                        default:
+                            Console.WriteLine("Invalid goal type found in the file. Skipping.");
+                            continue;
+                    }
+
+                    // Add the loaded goal to the goal manager
+                    goalManager.AddGoal(loadedGoal);
+                }
+            }
+
+            Console.WriteLine("Goals loaded from file.");
+        }
+
+        private static void RecordEvent(GoalManager goalManager)
+        {
+            // Checking to see if there are any goals in the goal manager
+            if (goalManager.Goals.Count == 0)
+            {
+                Console.WriteLine("No goals created yet.");
+                return;
+            }
+
+            // Listing all the existing goals
+            ListGoals(goalManager);
+
+            // Ask the user to select a goal to record progress for
+            Console.WriteLine("Enter the number of the goal you want to record progress for:");
+            
+            // Read the user input and convert it to an integer, then minus by 1 to use as an index
+            // Super important to know/remember. 
+            // When we display our ListGoals we are starting from 1 but when we are accessing our index (Elements in a list)
+            // we are starting at 0. So, we are subtracting 1 from input value to match the index
+            int goalIndex = int.Parse(Console.ReadLine()) - 1;
+
+            // Checking if the provided index is within the range of the list of goals
+            if (goalIndex < 0 || goalIndex >= goalManager.Goals.Count)
+            {
+                Console.WriteLine("Invalid goal number. Please try again.");
+                return;
+            }
+            // Record the progress for the selected goal
+            goalManager.RecordEvent(goalIndex);
+            Console.WriteLine("Progress recorded.");
+        }
+
+        private static void DeleteGoal(GoalManager goalManager)
+        {
+            // Check if there are any goals in the goal manager
+            if (goalManager.Goals.Count == 0)
+            {
+                Console.WriteLine("No goals created yet.");
+                return;
+            }
+
+            // List all the existing goals
+            ListGoals(goalManager);
+            Console.WriteLine("Enter the number of the goal you want to delete:");
+
+            // Read the user input and convert it to an integer, then minus by 1 to use as an index (Same as before)
+            int goalIndex = int.Parse(Console.ReadLine()) - 1;
+
+            // Checking if the provided index is within the correct range of the list of goals
+            if (goalIndex < 0 || goalIndex >= goalManager.Goals.Count)
+            {
+                Console.WriteLine("Invalid goal number. Please try again.");
+                return;
+            }
+
+            // Delete the selected goal
+            goalManager.DeleteGoal(goalIndex);
+            Console.WriteLine("Goal deleted.");
         }
     }
 }

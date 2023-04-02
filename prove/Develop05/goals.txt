@@ -1,0 +1,36 @@
+1530
+6
+SimpleGoal
+Running
+Go running for 1 mile
+50
+1
+SimpleGoal
+Attendance
+Be at class
+100
+1
+EternalGoal
+Affirmation
+Words of affirmation
+20
+2
+EternalGoal
+Sleep
+Get 7 hours of sleep
+50
+1
+ChecklistGoal
+Shopping
+Go shopping this month
+50
+3
+2
+100
+ChecklistGoal
+Games
+Play games for 30 minutes
+40
+1
+10
+250
