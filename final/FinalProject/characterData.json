@@ -1,0 +1,14 @@
+{
+  "Level": 11,
+  "BootsOfSwiftness": {
+    "Equipped": true
+  },
+  "CloakOfResistance": {
+    "Name": "Cloak of Resistance",
+    "Description": "A magical cloak that increases the wearer's resistance.",
+    "Equipped": true
+  },
+  "PattyCakeByRadcliff": {
+    "Equipped": true
+  }
+}
